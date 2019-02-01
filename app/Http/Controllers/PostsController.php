@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Post;
 use DB;
+use App\User;
 
 class PostsController extends Controller
 {
@@ -13,9 +14,13 @@ class PostsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
-        //using Eloquent
+        //--------------using Eloquent-----------------
         //$post = Post::all();
         //$post = Post::orderBy('title','desc')->get();
         //$post = Post::orderBy('title','asc')->get();
@@ -25,7 +30,7 @@ class PostsController extends Controller
         //pagination with eloquent
         $post = Post::orderBy('created_at','desc')->paginate(5);
 
-        //using DB library
+        //----------------using DB library-------------------
         //$post = DB::select('SELECT * FROM posts');
 
         return view('posts.index')->with('post',$post);
@@ -56,6 +61,7 @@ class PostsController extends Controller
         $post = new Post;
         $post->title = $request->input('title');
         $post->body = $request->input('body');
+        $post->user_id = auth()->user()->id;
         $post->save();
 
         return redirect('/posts')->with('success','Post Created');
